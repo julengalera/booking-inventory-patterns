@@ -1,0 +1,41 @@
+# Ephemeral PostgreSQL for the test suite.
+#
+# This database is disposable by design: it holds nothing worth keeping, it
+# must always start from a clean slate, and each `docker compose up` should be
+# indistinguishable from the last. Postgres' real locking semantics are the
+# subject matter of this repo, so it must be real Postgres — never SQLite,
+# never a mock.
+#
+# Note: no top-level `version:` key — it is obsolete in Compose v2 and only
+# prints a warning.
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: booking-inventory-patterns-db
+
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking
+      POSTGRES_DB: booking_patterns
+
+    # Standard Postgres port. If a local Postgres already owns 5432, override
+    # with DATABASE_URL rather than editing this file (documented in the README).
+    ports:
+      - "5432:5432"
+
+    # The data directory lives in RAM (tmpfs), not on disk. Three payoffs:
+    # every start is clean, there is nothing to persist or clean up, and the
+    # lock-heavy concurrency tests run faster. This is a tests-only database.
+    tmpfs:
+      - /var/lib/postgresql/data
+
+    # Lets `docker compose up --wait` block until Postgres actually accepts
+    # connections, so the quickstart has no startup race. The Vitest global
+    # setup also retries on connect, so readiness is guaranteed on both ends.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking -d booking_patterns"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
