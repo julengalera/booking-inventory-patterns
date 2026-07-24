@@ -1,0 +1,24 @@
+# Working docs — internal planning, never published
+CLAUDE.md
+CLAUDE.local.md
+PATTERNS.md
+PLAN.md
+
+# Claude Code
+.claude/
+.claude-mem/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

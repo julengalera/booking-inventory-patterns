@@ -1,0 +1,5 @@
+# Normalize all text files to LF in the repository and on checkout.
+# This repo is developed on Windows but its CI runs on Linux and Prettier
+# expects LF, so we pin line endings to LF everywhere to avoid churn and
+# false `prettier --check` failures.
+* text=auto eol=lf

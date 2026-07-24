@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // Node 24 runs modern ES natively; no downleveling needed.
+    "target": "ES2023",
+    "lib": ["ES2023"],
+
+    // NodeNext is the honest choice for a real ESM Node project: it forces
+    // explicit ".js" extensions on relative imports, exactly as Node requires
+    // at runtime. The type-checker then catches import mistakes tsc would
+    // otherwise hide.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    // Strictness is the point: this code is read as a work sample.
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Emit nothing: tsc is a type-checker here (Vitest/tsx run the TS).
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["shared/**/*.ts", "patterns/**/*.ts"]
+}

@@ -1,0 +1,4 @@
+# Generated / vendored — not ours to format
+node_modules/
+dist/
+package-lock.json
