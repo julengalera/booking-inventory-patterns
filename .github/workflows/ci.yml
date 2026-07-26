@@ -1,0 +1,53 @@
+# CI runs the FULL suite — including the naive tests that reproduce each race.
+# That is the repo's point of faith: the double booking happens on every push,
+# on a machine that is not mine, so the claims in the READMEs stay verifiable.
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # The whole suite takes seconds; anything near this limit means Postgres
+    # never came up or a lock test is hanging, and the run should die, not idle.
+    timeout-minutes: 10
+
+    services:
+      # Mirrors docker-compose.yml: same image, same credentials, same port,
+      # so the DATABASE_URL default in shared/db.ts works here unchanged.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: booking
+          POSTGRES_PASSWORD: booking
+          POSTGRES_DB: booking_patterns
+        ports:
+          - "5432:5432"
+        # GitHub blocks the job until the container reports healthy, so the
+        # test setup never races Postgres' startup (it retries anyway).
+        options: >-
+          --health-cmd "pg_isready -U booking -d booking_patterns"
+          --health-interval 1s
+          --health-timeout 3s
+          --health-retries 30
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # Single source of truth for the Node version.
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run format:check
+
+      # Vitest's globalSetup applies db/schema.sql before the suite — the same
+      # two-command quickstart as local: a running Postgres, then `npm test`.
+      - run: npm test
