@@ -10,7 +10,9 @@ export default defineConfig({
     // Lock-based concurrency tests take seconds, not milliseconds.
     testTimeout: 20_000,
 
-    // A database-applying globalSetup is added in the next increment, once the
-    // schema is wired to a running Postgres. The helper smoke test needs no DB.
+    // Runs ONCE before the whole suite: waits for Postgres and applies
+    // db/schema.sql from scratch, so every run starts from an identical, empty
+    // database. See shared/globalSetup.ts.
+    globalSetup: ["./shared/globalSetup.ts"],
   },
 });
